@@ -49,6 +49,13 @@ class DatasetNotFoundError(ResourceNotFoundError):
         super().__init__(dataset_name, "Dataset", "client.datasets.list()")
 
 
+class ToolNotFoundError(ResourceNotFoundError):
+    """raised when Llama Stack cannot find a referenced tool group"""
+
+    def __init__(self, tool_name: str) -> None:
+        super().__init__(tool_name, "Tool", "client.tools.list()")
+
+
 class ToolGroupNotFoundError(ResourceNotFoundError):
     """raised when Llama Stack cannot find a referenced tool group"""
 

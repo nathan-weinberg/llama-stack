@@ -7,7 +7,7 @@
 from typing import Any
 
 from llama_stack.apis.common.content_types import URL
-from llama_stack.apis.common.errors import ToolGroupNotFoundError
+from llama_stack.apis.common.errors import ToolGroupNotFoundError, ToolNotFoundError
 from llama_stack.apis.tools import ListToolGroupsResponse, ListToolsResponse, Tool, ToolGroup, ToolGroups
 from llama_stack.core.datatypes import ToolGroupWithOwner
 from llama_stack.log import get_logger
@@ -98,7 +98,7 @@ class ToolGroupsRoutingTable(CommonRoutingTableImpl, ToolGroups):
             for tool in tools:
                 if tool.identifier == tool_name:
                     return tool
-        raise ValueError(f"Tool '{tool_name}' not found")
+        raise ToolNotFoundError(tool_name)
 
     async def register_tool_group(
         self,
