@@ -14,6 +14,7 @@ from llama_stack_api import (
     DatasetIO,
     Datasets,
     Inference,
+    IterRowsRequest,
     ScoreBatchResponse,
     ScoreResponse,
     Scoring,
@@ -76,10 +77,7 @@ class LlmAsJudgeScoringImpl(
         dataset_def = await self.datasets_api.get_dataset(dataset_id=dataset_id)
         validate_dataset_schema(dataset_def.dataset_schema, get_valid_schemas(Api.scoring.value))
 
-        all_rows = await self.datasetio_api.iterrows(
-            dataset_id=dataset_id,
-            limit=-1,
-        )
+        all_rows = await self.datasetio_api.iterrows(IterRowsRequest(dataset_id=dataset_id, limit=-1))
         res = await self.score(
             input_rows=all_rows.data,
             scoring_functions=scoring_functions,
