@@ -120,7 +120,7 @@ jobs:
 
       - name: Setup test environment
         if: ${{ matrix.config.allowed_clients == null || contains(matrix.config.allowed_clients, matrix.client) }}
-        uses: ./.github/actions/setup-test-environment
+        uses: llamastack/llama-stack/.github/actions/setup-test-environment@306e43f882fdfbaf877f989f0c1ea900c6348055
         with:
           python-version: ${{ matrix.python-version }}
           client-version: ${{ matrix.client-version }}

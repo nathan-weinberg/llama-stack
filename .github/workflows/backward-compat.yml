@@ -162,7 +162,7 @@ jobs:
           echo "Extracted ci-tests config.yaml from main branch"
 
       - name: Setup test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: llamastack/llama-stack/.github/actions/setup-test-environment@306e43f882fdfbaf877f989f0c1ea900c6348055
         with:
           python-version: '3.12'
           client-version: 'latest'
@@ -278,7 +278,7 @@ jobs:
 
       - name: Setup test environment
         if: steps.get_release.outputs.has_release == 'true' && steps.extract_config.outputs.has_config == 'true'
-        uses: ./.github/actions/setup-test-environment
+        uses: llamastack/llama-stack/.github/actions/setup-test-environment@306e43f882fdfbaf877f989f0c1ea900c6348055
         with:
           python-version: '3.12'
           client-version: 'latest'
@@ -304,7 +304,7 @@ jobs:
 
       - name: Setup test environment for main
         if: steps.get_release.outputs.has_release == 'true' && steps.extract_config.outputs.has_config == 'true'
-        uses: ./.github/actions/setup-test-environment
+        uses: llamastack/llama-stack/.github/actions/setup-test-environment@306e43f882fdfbaf877f989f0c1ea900c6348055
         with:
           python-version: '3.12'
           client-version: 'latest'
