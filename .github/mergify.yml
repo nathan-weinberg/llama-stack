@@ -21,3 +21,12 @@ pull_request_rules:
     label:
       remove:
         - needs-rebase
+
+- name: bump setup-test-environment action SHA when run-and-record-tests changes
+  conditions:
+      - merged
+      - base=main
+      - files~=^\.github/actions/run-and-record-tests/
+  actions:
+    workflow_dispatch:
+      workflow: bump-action-sha.yml

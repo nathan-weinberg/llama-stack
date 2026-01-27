@@ -1,0 +1,74 @@
+name: Bump Action SHA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump-sha:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Get latest commit SHA from main
+        id: get-sha
+        run: |
+          git fetch origin main
+          LATEST_SHA=$(git rev-parse origin/main)
+          echo "latest_sha=$LATEST_SHA" >> $GITHUB_OUTPUT
+          echo "Latest SHA on main: $LATEST_SHA"
+
+      - name: Update action SHA references
+        id: update-sha
+        run: |
+          LATEST_SHA="${{ steps.get-sha.outputs.latest_sha }}"
+
+          # Pattern to match the setup-test-environment action with any SHA
+          OLD_PATTERN='llamastack/llama-stack/.github/actions/setup-test-environment@[a-f0-9]\{40\}'
+          NEW_REF="llamastack/llama-stack/.github/actions/setup-test-environment@${LATEST_SHA}"
+
+          # Find and update all workflow files
+          UPDATED_FILES=""
+          for file in .github/workflows/*.yml; do
+            if grep -q "llamastack/llama-stack/.github/actions/setup-test-environment@" "$file"; then
+              # Check if already up to date
+              if grep -q "${NEW_REF}" "$file"; then
+                echo "File $file already has latest SHA"
+              else
+                sed -i "s|${OLD_PATTERN}|${NEW_REF}|g" "$file"
+                UPDATED_FILES="${UPDATED_FILES} ${file}"
+                echo "Updated $file"
+              fi
+            fi
+          done
+
+          if [ -z "$UPDATED_FILES" ]; then
+            echo "No files needed updating"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Updated files:$UPDATED_FILES"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.update-sha.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: bump setup-test-environment action SHA to ${{ steps.get-sha.outputs.latest_sha }}"
+          title: "chore: bump setup-test-environment action SHA"
+          body: |
+            This PR updates the SHA reference for the `setup-test-environment` action to the latest commit on main.
+
+            New SHA: `${{ steps.get-sha.outputs.latest_sha }}`
+
+            This was automatically triggered by a change to the `.github/actions/run-and-record-tests/` directory.
+          branch: auto/bump-action-sha
+          base: main
+          delete-branch: true
