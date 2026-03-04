@@ -24,6 +24,7 @@ from llama_stack_api import (
     ConversationItem,
     Conversations,
     Files,
+    GetPromptRequest,
     Inference,
     InternalServerError,
     InvalidParameterError,
@@ -291,7 +292,9 @@ class OpenAIResponsesImpl:
             return
 
         prompt_version = int(openai_response_prompt.version) if openai_response_prompt.version else None
-        cur_prompt = await self.prompts_api.get_prompt(openai_response_prompt.id, prompt_version)
+        cur_prompt = await self.prompts_api.get_prompt(
+            GetPromptRequest(prompt_id=openai_response_prompt.id, version=prompt_version)
+        )
 
         if not cur_prompt or not cur_prompt.prompt:
             return
@@ -569,6 +572,7 @@ class OpenAIResponsesImpl:
         metadata: dict[str, str] | None = None,
         truncation: ResponseTruncation | None = None,
         top_logprobs: int | None = None,
+        presence_penalty: float | None = None,
     ):
         stream = bool(stream)
         background = bool(background)
@@ -644,6 +648,7 @@ class OpenAIResponsesImpl:
                 service_tier=service_tier,
                 metadata=metadata,
                 truncation=truncation,
+                presence_penalty=presence_penalty,
             )
 
         stream_gen = self._create_streaming_response(
@@ -673,6 +678,7 @@ class OpenAIResponsesImpl:
             include=include,
             truncation=truncation,
             top_logprobs=top_logprobs,
+            presence_penalty=presence_penalty,
         )
 
         if stream:
@@ -755,6 +761,7 @@ class OpenAIResponsesImpl:
         service_tier: ServiceTier | None = None,
         metadata: dict[str, str] | None = None,
         truncation: ResponseTruncation | None = None,
+        presence_penalty: float | None = None,
     ) -> OpenAIResponseObject:
         """Create a response that processes in the background.
 
@@ -826,6 +833,7 @@ class OpenAIResponsesImpl:
                     service_tier=service_tier,
                     metadata=metadata,
                     truncation=truncation,
+                    presence_penalty=presence_penalty,
                 )
             )
         except asyncio.QueueFull:
@@ -861,6 +869,7 @@ class OpenAIResponsesImpl:
         service_tier: ServiceTier | None = None,
         metadata: dict[str, str] | None = None,
         truncation: ResponseTruncation | None = None,
+        presence_penalty: float | None = None,
     ) -> None:
         """Inner loop for background response processing, separated for timeout wrapping."""
         # Check if response was cancelled before starting
@@ -899,6 +908,7 @@ class OpenAIResponsesImpl:
             include=include,
             truncation=truncation,
             response_id=response_id,
+            presence_penalty=presence_penalty,
         )
 
         result_response = None
@@ -959,6 +969,7 @@ class OpenAIResponsesImpl:
         truncation: ResponseTruncation | None = None,
         response_id: str | None = None,
         top_logprobs: int | None = None,
+        presence_penalty: float | None = None,
     ) -> AsyncIterator[OpenAIResponseObjectStream]:
         # These should never be None when called from create_openai_response (which sets defaults)
         # but we assert here to help mypy understand the types
@@ -1033,6 +1044,7 @@ class OpenAIResponsesImpl:
                 store=store,
                 truncation=truncation,
                 top_logprobs=top_logprobs,
+                presence_penalty=presence_penalty,
             )
 
             final_response = None

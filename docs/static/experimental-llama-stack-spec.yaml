@@ -1256,6 +1256,7 @@ components:
       title: ListOpenAIChatCompletionResponse
       description: Response from listing OpenAI-compatible chat completions.
     OpenAIAssistantMessageParam:
+      additionalProperties: true
       description: A message containing the model's (assistant) response in an OpenAI-compatible chat completion request.
       properties:
         role:
@@ -2617,8 +2618,26 @@ components:
           type: string
           title: Call Id
         output:
-          type: string
-          title: Output
+          anyOf:
+          - type: string
+          - items:
+              oneOf:
+              - $ref: '#/components/schemas/OpenAIResponseInputMessageContentText'
+                title: OpenAIResponseInputMessageContentText
+              - $ref: '#/components/schemas/OpenAIResponseInputMessageContentImage'
+                title: OpenAIResponseInputMessageContentImage
+              - $ref: '#/components/schemas/OpenAIResponseInputMessageContentFile'
+                title: OpenAIResponseInputMessageContentFile
+              discriminator:
+                propertyName: type
+                mapping:
+                  input_file: '#/components/schemas/OpenAIResponseInputMessageContentFile'
+                  input_image: '#/components/schemas/OpenAIResponseInputMessageContentImage'
+                  input_text: '#/components/schemas/OpenAIResponseInputMessageContentText'
+              title: OpenAIResponseInputMessageContentText | OpenAIResponseInputMessageContentImage | OpenAIResponseInputMessageContentFile
+            type: array
+            title: list[OpenAIResponseInputMessageContentText | OpenAIResponseInputMessageContentImage | OpenAIResponseInputMessageContentFile]
+          title: string | list[OpenAIResponseInputMessageContentText | OpenAIResponseInputMessageContentImage | OpenAIResponseInputMessageContentFile]
         type:
           type: string
           const: function_call_output
@@ -4296,6 +4315,10 @@ components:
               type: string
             type: object
           - type: 'null'
+        presence_penalty:
+          anyOf:
+          - type: number
+          - type: 'null'
         store:
           type: boolean
           title: Store
@@ -4769,6 +4792,10 @@ components:
               type: string
             type: object
           - type: 'null'
+        presence_penalty:
+          anyOf:
+          - type: number
+          - type: 'null'
         store:
           type: boolean
           title: Store
@@ -4974,6 +5001,9 @@ components:
       properties:
         response:
           $ref: '#/components/schemas/OpenAIResponseObject'
+        sequence_number:
+          title: Sequence Number
+          type: integer
         type:
           const: response.completed
           default: response.completed
@@ -4981,6 +5011,7 @@ components:
           type: string
       required:
       - response
+      - sequence_number
       title: OpenAIResponseObjectStreamResponseCompleted
       type: object
     OpenAIResponseObjectStreamResponseContentPartAdded:
@@ -5082,6 +5113,9 @@ components:
       properties:
         response:
           $ref: '#/components/schemas/OpenAIResponseObject'
+        sequence_number:
+          title: Sequence Number
+          type: integer
         type:
           const: response.created
           default: response.created
@@ -5089,6 +5123,7 @@ components:
           type: string
       required:
       - response
+      - sequence_number
       title: OpenAIResponseObjectStreamResponseCreated
       type: object
     OpenAIResponseObjectStreamResponseFailed:
@@ -9320,6 +9355,7 @@ components:
             type: array
           - type: 'null'
           description: List of tool calls. Each tool call is an OpenAIChatCompletionToolCall object.
+      additionalProperties: true
       type: object
       title: OpenAIAssistantMessageParam
       description: A message containing the model's (assistant) response in an OpenAI-compatible chat completion request.
@@ -9353,6 +9389,7 @@ components:
             type: array
           - type: 'null'
           description: List of tool calls. Each tool call is an OpenAIChatCompletionToolCall object.
+      additionalProperties: true
       type: object
       title: OpenAIAssistantMessageParam
       description: A message containing the model's (assistant) response in an OpenAI-compatible chat completion request.
