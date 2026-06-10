@@ -90,12 +90,7 @@ def run_stack_list_deps_command(args: argparse.Namespace) -> None:
             with open(config_file) as f:
                 try:
                     contents = yaml.safe_load(f)
-                    # Resolve env var templates before validation so non-string
-                    # fields (e.g. integers) pass Pydantic parsing.  This also
-                    # handles auth provider_config: replace_env_vars nulls it
-                    # when the conditional type field resolves to empty, avoiding
-                    # discriminated-union validation errors without schema changes.
-                    config = StackConfig(**replace_env_vars(contents))
+                    config = StackConfig(**replace_env_vars(contents, ignore_unresolved=True))
                 except Exception as e:
                     cprint(
                         f"Could not parse config file {config_file}: {e}",
