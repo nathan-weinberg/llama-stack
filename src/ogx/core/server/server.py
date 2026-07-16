@@ -489,7 +489,7 @@ def create_app() -> StackApp:
     if not (config.server.auth and config.server.auth.provider_config):
         logger.warning(
             "Authentication is not configured. All API endpoints are accessible without credentials. "
-            "See https://ogx-ai.github.io/distributions/configuration#authentication-configuration"
+            "See https://ogx-ai.github.io/docs/distributions/configuration#authentication-configuration"
             " to configure authentication.",
         )
 
